@@ -19,7 +19,7 @@
         }
     },
     "bin": [
-        "homestead"
+        "entropy"
     ],
     "minimum-stability": "stable"
 }
