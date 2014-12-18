@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-mkdir -p ~/.homestead
+mkdir -p ~/.entropy
 
-cp src/stubs/Homestead.yaml ~/.homestead/Homestead.yaml
-cp src/stubs/after.sh ~/.homestead/after.sh
-cp src/stubs/aliases ~/.homestead/aliases
+cp src/stubs/Entropy.yaml ~/.entropy/Entropy.yaml
+cp src/stubs/after.sh ~/.entropy/after.sh
+cp src/stubs/aliases ~/.entropy/aliases
 
-echo "Homestead initialized!"
+echo "Entropy initialized!"

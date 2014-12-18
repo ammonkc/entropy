@@ -1,4 +1,4 @@
-<?php namespace Laravel\Homestead;
+<?php namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ class UpdateCommand extends Command {
 	protected function configure()
 	{
 		$this->setName('update')
-                  ->setDescription('Update the Homestead machine image');
+                  ->setDescription('Update the Entropy machine image');
 	}
 
 	/**

@@ -1,4 +1,4 @@
-<?php namespace Laravel\Homestead;
+<?php namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -17,7 +17,7 @@ class RunCommand extends Command {
 	{
 		$this
 			->setName('run')
-			->setDescription('Run commands through the Homestead machine via SSH')
+			->setDescription('Run commands through the Entropy machine via SSH')
 			->addArgument('ssh-command', InputArgument::REQUIRED, 'The command to pass through to the virtual machine.');
 }
 
@@ -34,7 +34,7 @@ class RunCommand extends Command {
 
 		$command = $input->getArgument('ssh-command');
 
-		passthru('VAGRANT_DOTFILE_PATH="~/.homestead/.vagrant" vagrant ssh -c "'.$command.'"');
+		passthru('VAGRANT_DOTFILE_PATH="~/.entropy/.vagrant" vagrant ssh -c "'.$command.'"');
 	}
 
 }

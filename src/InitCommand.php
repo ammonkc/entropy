@@ -1,4 +1,4 @@
-<?php namespace Laravel\Homestead;
+<?php namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ class InitCommand extends Command {
 	protected function configure()
 	{
 		$this->setName('init')
-                  ->setDescription('Create a stub Homestead.yaml file');
+                  ->setDescription('Create a stub Entropy.yaml file');
 	}
 
 	/**
@@ -27,19 +27,19 @@ class InitCommand extends Command {
 	 */
 	public function execute(InputInterface $input, OutputInterface $output)
 	{
-		if (is_dir(homestead_path()))
+		if (is_dir(entropy_path()))
 		{
-			throw new \InvalidArgumentException("Homestead has already been initialized.");
+			throw new \InvalidArgumentException("Entropy has already been initialized.");
 		}
 
-		mkdir(homestead_path());
+		mkdir(entropy_path());
 
-		copy(__DIR__.'/stubs/Homestead.yaml', homestead_path().'/Homestead.yaml');
-		copy(__DIR__.'/stubs/after.sh', homestead_path().'/after.sh');
-		copy(__DIR__.'/stubs/aliases', homestead_path().'/aliases');
+		copy(__DIR__.'/stubs/Entropy.yaml', entropy_path().'/Entropy.yaml');
+		copy(__DIR__.'/stubs/after.sh', entropy_path().'/after.sh');
+		copy(__DIR__.'/stubs/aliases', entropy_path().'/aliases');
 
-		$output->writeln('<comment>Creating Homestead.yaml file...</comment> <info>✔</info>');
-		$output->writeln('<comment>Homestead.yaml file created at:</comment> '.homestead_path().'/Homestead.yaml');
+		$output->writeln('<comment>Creating Entropy.yaml file...</comment> <info>✔</info>');
+		$output->writeln('<comment>Entropy.yaml file created at:</comment> '.entropy_path().'/Entropy.yaml');
 	}
 
 }

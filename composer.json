@@ -1,5 +1,5 @@
 {
-    "name": "laravel/homestead",
+    "name": "amonkc/entropy",
     "description": "A virtual machine for web artisans.",
     "require": {
         "php": ">=5.4",
@@ -9,17 +9,17 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Taylor Otwell",
-            "email": "taylorotwell@gmail.com"
+            "name": "Ammon Casey",
+            "email": "ammon@ammonkc.com"
         }
     ],
     "autoload": {
         "psr-4": {
-            "Laravel\\Homestead\\": "src/"
+            "Ammonkc\\Entropy\\": "src/"
         }
     },
     "bin": [
-        "homestead"
+        "entropy"
     ],
     "minimum-stability": "stable"
 }

@@ -1,5 +1,5 @@
-# Laravel Homestead
+# Entropy
 
-The official Laravel local development environment.
+The official Entropy local development environment.
 
-Official documentation [is located here](http://laravel.com/docs/homestead?version=4.2).
+

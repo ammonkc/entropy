@@ -1,4 +1,4 @@
-<?php namespace Laravel\Homestead;
+<?php namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ class SshCommand extends Command {
 	protected function configure()
 	{
 		$this->setName('ssh')
-                  ->setDescription('Login to the Homestead machine via SSH');
+                  ->setDescription('Login to the Entropy machine via SSH');
 	}
 
 	/**
@@ -29,7 +29,7 @@ class SshCommand extends Command {
 	{
 		chdir(__DIR__.'/../');
 
-		passthru('VAGRANT_DOTFILE_PATH="~/.homestead/.vagrant" vagrant ssh');
+		passthru('VAGRANT_DOTFILE_PATH="~/.entropy/.vagrant" vagrant ssh');
 	}
 
 }
