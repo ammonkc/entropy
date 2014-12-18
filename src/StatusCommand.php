@@ -1,4 +1,4 @@
-<?php namespace Laravel\Homestead;
+<?php namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ class StatusCommand extends Command {
 	protected function configure()
 	{
 		$this->setName('status')
-                  ->setDescription('Get the status of the Homestead machine');
+                  ->setDescription('Get the status of the Entropy machine');
 	}
 
 	/**

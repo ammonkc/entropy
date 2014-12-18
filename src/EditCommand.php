@@ -1,4 +1,4 @@
-<?php namespace Laravel\Homestead;
+<?php namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ class EditCommand extends Command {
 	protected function configure()
 	{
 		$this->setName('edit')
-                  ->setDescription('Edit the Homestead.yaml file');
+                  ->setDescription('Edit the Entropy.yaml file');
 	}
 
 	/**
@@ -27,7 +27,7 @@ class EditCommand extends Command {
 	 */
 	public function execute(InputInterface $input, OutputInterface $output)
 	{
-		$command = $this->executable().' '.homestead_path().'/Homestead.yaml';
+		$command = $this->executable().' '.entropy_path().'/Entropy.yaml';
 
 		$process = new Process($command, realpath(__DIR__.'/../'), $_ENV, null, null);
 
