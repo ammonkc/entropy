@@ -5,7 +5,7 @@ class Entropy
     config.vm.hostname = "entropy"
 
     # Configure A Private Network IP
-    config.vm.network :private_network, ip: settings["ip"] ||= "192.168.10.10"
+    config.vm.network :private_network, ip: settings["ip"] ||= "192.168.10.20"
 
     # Configure A Few VirtualBox Settings
     config.vm.provider "virtualbox" do |vb|
