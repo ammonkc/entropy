@@ -1,7 +1,7 @@
 class Entropy
   def Entropy.configure(config, settings)
     # Configure The Box
-    config.vm.box = "ammonkc/entropy"
+    config.vm.box = settings["box"] ||= "ammonkc/entropy"
     config.vm.hostname = "entropy"
 
     # Configure A Private Network IP
@@ -14,7 +14,7 @@ class Entropy
       vb.customize ["modifyvm", :id, "--cpus", settings["cpus"] ||= "1"]
       vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
-      vb.customize ["modifyvm", :id, "--ostype", "Ubuntu_64"]
+      vb.customize ["modifyvm", :id, "--ostype", "RedHat_64"]
     end
 
     # Configure Port Forwarding To The Box
@@ -46,13 +46,23 @@ class Entropy
     # Install All The Configured Nginx Sites
     settings["sites"].each do |site|
       config.vm.provision "shell" do |s|
+        if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
           if (site.has_key?("hhvm") && site["hhvm"])
             s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 $2"
             s.args = [site["map"], site["to"]]
           else
-            s.inline = "bash /vagrant/scripts/serve.sh $1 $2"
+            s.inline = "bash /vagrant/scripts/serve-nginx.sh $1 $2"
             s.args = [site["map"], site["to"]]
           end
+        else
+          if (site.has_key?("hhvm") && site["hhvm"])
+            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 $2"
+            s.args = [site["map"], site["to"]]
+          else
+            s.inline = "bash /vagrant/scripts/serve-httpd.sh $1 $2"
+            s.args = [site["map"], site["to"]]
+          end
+        end
       end
     end
 
@@ -73,13 +83,22 @@ class Entropy
     if settings.has_key?("variables")
       settings["variables"].each do |var|
         config.vm.provision "shell" do |s|
+          if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
             s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php5/fpm/php-fpm.conf"
             s.args = [var["key"], var["value"]]
+          else
+            s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php-fpm.conf"
+            s.args = [var["key"], var["value"]]
+          end
         end
       end
 
       config.vm.provision "shell" do |s|
+        if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
           s.inline = "service php5-fpm restart"
+        else
+          s.inline = "service php-fpm restart"
+        end
       end
     end
 

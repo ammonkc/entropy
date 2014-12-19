@@ -1,5 +1,5 @@
 # Entropy
 
-The official Entropy local development environment.
+The official Entropy vm for local development environment.
 
 
