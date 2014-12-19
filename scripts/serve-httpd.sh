@@ -24,4 +24,4 @@ NameVirtualHost $1:80
 echo "$block" > "/etc/httpd/conf/vhosts/available/$1.conf"
 ln -fs "/etc/httpd/conf/vhosts/available/$1.conf" "/etc/httpd/conf/vhosts/enabled/$1.conf"
 service httpd restart
-service php5-fpm restart
+service php-fpm restart
