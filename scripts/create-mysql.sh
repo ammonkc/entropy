@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 DB=$1;
-mysql -uhomestead -psecret -e "DROP DATABASE IF EXISTS $DB";
-mysql -uhomestead -psecret -e "CREATE DATABASE $DB";
+mysql -uentropy -psecret -e "DROP DATABASE IF EXISTS $DB";
+mysql -uentropy -psecret -e "CREATE DATABASE $DB";
