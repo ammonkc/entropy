@@ -2,6 +2,7 @@ class Entropy
   def Entropy.configure(config, settings)
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
+    config.vm.box_version ~> settings["box_version"] ||= "2.0"
     config.vm.hostname = "entropy"
 
     # Configure A Private Network IP
