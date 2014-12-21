@@ -12,12 +12,12 @@ keys:
     - ~/.ssh/id_rsa
 
 folders:
-    - map: ~/Code
-      to: /home/vagrant/Code
+    - map: /Library/WebServer/Documents
+      to: /var/www/html/Entropy
 
 sites:
     - map: entropy.dev
-      to: /home/vagrant/Code/Entropy/public
+      to: /var/www/html/Entropy/public
 
 databases:
     - entropy
