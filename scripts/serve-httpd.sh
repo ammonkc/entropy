@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 
 block="
-NameVirtualHost $1:80
-
-<VirtualHost $1:80>
+<VirtualHost *:80>
     ServerAdmin acasey@panda-group.com
     ServerName $1
     DocumentRoot $2
