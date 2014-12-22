@@ -41,7 +41,7 @@ class Entropy
 
     # Register All Of The Configured Shared Folders
     settings["folders"].each do |folder|
-      config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil
+      config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, :mount_options => ["dmode=777","fmode=666"]
     end
 
     # Install All The Configured Nginx Sites
