@@ -72,7 +72,11 @@ class Entropy
         config.vm.provision "shell" do |s|
             sql = database["sql"] ||= ""
             s.path = "./scripts/create-mysql.sh"
-            s.args = [database["db"], sql]
+            if (database.has_key?("sql") && database["sql"])
+              s.args = [database["db"], database["sql"]]
+            else
+              s.args = database["db"]
+            end
         end
 
         # config.vm.provision "shell" do |s|
