@@ -70,7 +70,7 @@ class Entropy
     # Configure All Of The Configured Databases
     settings["databases"].each do |database|
         config.vm.provision "shell" do |s|
-            sql = database["sql"] ||= nil
+            sql = database["sql"] ||= ""
             s.path = "./scripts/create-mysql.sh"
             s.args = [database["db"], sql]
         end
