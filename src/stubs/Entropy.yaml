@@ -20,7 +20,7 @@ sites:
       to: /var/www/html/Entropy/public
 
 databases:
-    - entropy
+    - db: entropy
 
 variables:
     - key: APP_ENV
