@@ -1,7 +1,7 @@
 require 'json'
 require 'yaml'
 
-VAGRANTFILE_API_VERSION = "2"
+# VAGRANTFILE_API_VERSION = "2"
 
 entropyYamlPath = File.expand_path("~/.entropy/Entropy.yaml")
 afterScriptPath = File.expand_path("~/.entropy/after.sh")
