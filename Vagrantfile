@@ -3,8 +3,6 @@ require 'yaml'
 
 if (defined?(VAGRANTFILE_API_VERSION)).nil? # will now return true or false
     VAGRANTFILE_API_VERSION = "2"
-else
-    print "VAGRANTFILE_API_VERSION is defined\n".color(:green)
 end
 
 entropyYamlPath = File.expand_path("~/.entropy/Entropy.yaml")
