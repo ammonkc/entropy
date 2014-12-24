@@ -44,6 +44,12 @@ class Entropy
       config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, :mount_options => ["dmode=777","fmode=666"]
     end
 
+    # remove existing hosts file if any
+    config.vm.provision "shell" do |s|
+      s.inline = "rm $1"
+      s.args = ["/etc/dnsmasq.hosts"]
+    end
+
     # Install All The Configured Nginx Sites
     settings["sites"].each do |site|
       config.vm.provision "shell" do |s|
@@ -64,6 +70,9 @@ class Entropy
             s.args = [site["map"], site["to"]]
           end
         end
+        # Add hosts
+        s.inline = "echo $1 $2. >> /etc/dnsmasq.hosts"
+        s.args = [settings["ip"], site["map"]]
       end
     end
 
