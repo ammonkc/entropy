@@ -46,7 +46,7 @@ class Entropy
 
     # remove existing hosts file if any
     config.vm.provision "shell" do |s|
-      s.inline = "rm $1"
+      s.inline = "> $1"
       s.args = ["/etc/dnsmasq.hosts"]
     end
 
