@@ -64,9 +64,6 @@ class Entropy
             s.args = [site["map"], site["to"]]
           end
         end
-        # Add hosts
-        s.inline = "echo $1 $2. >> /etc/dnsmasq.hosts"
-        s.args = [settings["ip"], site["map"]]
       end
     end
 
