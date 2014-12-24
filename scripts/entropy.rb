@@ -79,7 +79,6 @@ class Entropy
     # Configure All Of The Configured Databases
     settings["databases"].each do |database|
         config.vm.provision "shell" do |s|
-            sql = database["sql"] ||= ""
             s.path = "./scripts/create-mysql.sh"
             if (database.has_key?("sql") && database["sql"])
               s.args = [database["db"], database["sql"]]
@@ -120,6 +119,7 @@ class Entropy
     # Update Composer On Every Provision
     config.vm.provision "shell" do |s|
       s.inline = "/usr/local/bin/composer self-update"
+      s.inline = "service dnsmasq restart"
     end
   end
 end
