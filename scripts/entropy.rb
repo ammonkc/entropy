@@ -44,12 +44,6 @@ class Entropy
       config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, :mount_options => ["dmode=777","fmode=666"]
     end
 
-    # remove existing hosts file if any
-    config.vm.provision "shell" do |s|
-      s.inline = "> $1"
-      s.args = ["/etc/dnsmasq.hosts"]
-    end
-
     # Install All The Configured Nginx Sites
     settings["sites"].each do |site|
       config.vm.provision "shell" do |s|
@@ -74,6 +68,26 @@ class Entropy
         s.inline = "echo $1 $2. >> /etc/dnsmasq.hosts"
         s.args = [settings["ip"], site["map"]]
       end
+    end
+
+    # remove existing hosts file if any
+    config.vm.provision "shell" do |s|
+      s.inline = "> $1"
+      s.args = ["/etc/dnsmasq.hosts"]
+    end
+
+    # Install All The Configured Nginx Sites
+    settings["sites"].each do |site|
+      config.vm.provision "shell" do |s|
+        # Add hosts
+        s.inline = "echo $1 $2. >> /etc/dnsmasq.hosts"
+        s.args = [settings["ip"], site["map"]]
+      end
+    end
+
+    # Restart dnsmasq
+    config.vm.provision "shell" do |s|
+      s.inline = "service dnsmasq restart"
     end
 
     # Configure All Of The Configured Databases
@@ -119,7 +133,6 @@ class Entropy
     # Update Composer On Every Provision
     config.vm.provision "shell" do |s|
       s.inline = "/usr/local/bin/composer self-update"
-      s.inline = "service dnsmasq restart"
     end
   end
 end
