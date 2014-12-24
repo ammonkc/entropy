@@ -44,7 +44,7 @@ class Entropy
       config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, :mount_options => ["dmode=777","fmode=666"]
     end
 
-    # Install All The Configured Nginx Sites
+    # Install All The Configured vhost Sites
     settings["sites"].each do |site|
       config.vm.provision "shell" do |s|
         if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
@@ -67,24 +67,18 @@ class Entropy
       end
     end
 
-    # remove existing hosts file if any
+    # clear existing hosts file if any
     config.vm.provision "shell" do |s|
       s.inline = "> $1"
-      s.args = ["/etc/dnsmasq.hosts"]
+      s.args = ["/etc/hosts.dnsmasq"]
     end
 
-    # Install All The Configured Nginx Sites
+    # Add sites to hosts.dnsmasq
     settings["sites"].each do |site|
       config.vm.provision "shell" do |s|
-        # Add hosts
-        s.inline = "echo $1 $2. >> /etc/dnsmasq.hosts"
+        s.inline = "bash /vagrant/scripts/dnsmasq.sh $1 $2"
         s.args = [settings["ip"], site["map"]]
       end
-    end
-
-    # Restart dnsmasq
-    config.vm.provision "shell" do |s|
-      s.inline = "service dnsmasq restart"
     end
 
     # Configure All Of The Configured Databases
