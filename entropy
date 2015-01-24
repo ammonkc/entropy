@@ -1,7 +1,8 @@
 #!/usr/bin/env php
 <?php
 
-$_ENV['VAGRANT_DOTFILE_PATH'] = '~/.entropy/.vagrant';
+$_ENV['HOME'] = getenv('HOME');
+$_ENV['VAGRANT_DOTFILE_PATH'] = entropy_path().DIRECTORY_SEPARATOR.'.vagrant';
 
 if (file_exists(__DIR__.'/vendor/autoload.php'))
 {
@@ -24,13 +25,14 @@ function entropy_path()
 	}
 }
 
-$app = new Symfony\Component\Console\Application('Entropy', '2.1.3');
+$app = new Symfony\Component\Console\Application('Entropy', '2.1.5');
 
 $app->add(new Ammonkc\Entropy\DestroyCommand);
 $app->add(new Ammonkc\Entropy\EditCommand);
 $app->add(new Ammonkc\Entropy\HaltCommand);
 $app->add(new Ammonkc\Entropy\InitCommand);
 $app->add(new Ammonkc\Entropy\ListCommand);
+$app->add(new Ammonkc\Entropy\PrivisionCommand);
 $app->add(new Ammonkc\Entropy\ResumeCommand);
 $app->add(new Ammonkc\Entropy\RunCommand);
 $app->add(new Ammonkc\Entropy\UpCommand);
