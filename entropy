@@ -32,7 +32,7 @@ $app->add(new Ammonkc\Entropy\EditCommand);
 $app->add(new Ammonkc\Entropy\HaltCommand);
 $app->add(new Ammonkc\Entropy\InitCommand);
 $app->add(new Ammonkc\Entropy\ListCommand);
-$app->add(new Ammonkc\Entropy\PrivisionCommand);
+$app->add(new Ammonkc\Entropy\ProvisionCommand);
 $app->add(new Ammonkc\Entropy\ResumeCommand);
 $app->add(new Ammonkc\Entropy\RunCommand);
 $app->add(new Ammonkc\Entropy\UpCommand);
