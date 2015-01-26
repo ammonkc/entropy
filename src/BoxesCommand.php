@@ -5,7 +5,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ListCommand extends Command {
+class BoxesCommand extends Command {
 
 	/**
 	 * Configure the command options.
@@ -14,8 +14,8 @@ class ListCommand extends Command {
 	 */
 	protected function configure()
 	{
-		$this->setName('list')
-                  ->setDescription('This command lists all the boxes that are installed into Vagrant');
+		$this->setName('boxes')
+                  ->setDescription('This command lists all entropy boxes that are installed in Vagrant');
 	}
 
 	/**
