@@ -2,8 +2,10 @@
 
 mkdir -p ~/.entropy
 
-cp src/stubs/Entropy.yaml ~/.entropy/Entropy.yaml
-cp src/stubs/after.sh ~/.entropy/after.sh
-cp src/stubs/aliases ~/.entropy/aliases
+entropyRoot=~/.entropy
+
+cp -i src/stubs/Entropy.yaml $entropyRoot/Entropy.yaml
+cp -i src/stubs/after.sh $entropyRoot/after.sh
+cp -i src/stubs/aliases $entropyRoot/aliases
 
 echo "Entropy initialized!"

@@ -32,17 +32,21 @@ class Entropy
     end
 
     # Configure The Public Key For SSH Access
-    config.vm.provision "shell" do |s|
-      s.inline = "echo $1 | grep -xq \"$1\" /home/vagrant/.ssh/authorized_keys || echo $1 | tee -a /home/vagrant/.ssh/authorized_keys"
-      s.args = [File.read(File.expand_path(settings["authorize"]))]
+    if settings.include? 'authorize'
+      config.vm.provision "shell" do |s|
+        s.inline = "echo $1 | grep -xq \"$1\" /home/vagrant/.ssh/authorized_keys || echo $1 | tee -a /home/vagrant/.ssh/authorized_keys"
+        s.args = [File.read(File.expand_path(settings["authorize"]))]
+      end
     end
 
     # Copy The SSH Private Keys To The Box
-    settings["keys"].each do |key|
-      config.vm.provision "shell" do |s|
-        s.privileged = false
-        s.inline = "echo \"$1\" > /home/vagrant/.ssh/$2 && chmod 600 /home/vagrant/.ssh/$2"
-        s.args = [File.read(File.expand_path(key)), key.split('/').last]
+    if settings.include? 'keys'
+      settings["keys"].each do |key|
+        config.vm.provision "shell" do |s|
+          s.privileged = false
+          s.inline = "echo \"$1\" > /home/vagrant/.ssh/$2 && chmod 600 /home/vagrant/.ssh/$2"
+          s.args = [File.read(File.expand_path(key)), key.split('/').last]
+        end
       end
     end
 
@@ -56,19 +60,19 @@ class Entropy
       config.vm.provision "shell" do |s|
         if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
           if (site.has_key?("hhvm") && site["hhvm"])
-            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 $2"
-            s.args = [site["map"], site["to"]]
+            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 \"$2\" $3"
+            s.args = [site["map"], site["to"], site["port"] ||= 80]
           else
-            s.inline = "bash /vagrant/scripts/serve-nginx.sh $1 $2"
-            s.args = [site["map"], site["to"]]
+            s.inline = "bash /vagrant/scripts/serve.sh $1 \"$2\" $3"
+            s.args = [site["map"], site["to"], site["port"] ||= 80]
           end
         else
           if (site.has_key?("hhvm") && site["hhvm"])
-            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 $2"
-            s.args = [site["map"], site["to"]]
+            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 \"$2\" $3"
+            s.args = [site["map"], site["to"], site["port"] ||= 80]
           else
-            s.inline = "bash /vagrant/scripts/serve-httpd.sh $1 $2"
-            s.args = [site["map"], site["to"]]
+            s.inline = "bash /vagrant/scripts/serve-httpd.sh $1 \"$2\" $3"
+            s.args = [site["map"], site["to"], site["port"] ||= 80]
           end
         end
       end
