@@ -1,9 +1,11 @@
 class Entropy
   def Entropy.configure(config, settings)
+    # Set The VM Provider
+    ENV['VAGRANT_DEFAULT_PROVIDER'] = settings["provider"] ||= "virtualbox"
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
-    config.vm.box_version = settings["box_version"] ||= "~>2.0"
     config.vm.hostname = "entropy"
+    config.vm.box_version = settings["box_version"] ||= "~>2.0"
 
     # Configure A Private Network IP
     config.vm.network :private_network, ip: settings["ip"] ||= "192.168.10.20"
@@ -18,6 +20,12 @@ class Entropy
       vb.customize ["modifyvm", :id, "--ostype", settings["ostype"] ||= "RedHat_64"]
     end
 
+    config.vm.provider "vmware_fusion" do |v|
+      v.name = 'entropy'
+      v.memory = settings["memory"] ||= "2048"
+      v.cpus = settings["cpus"] ||= "1"
+    end
+
     # Configure Port Forwarding To The Box
     config.vm.network "forwarded_port", guest: 80, host: 8000
     config.vm.network "forwarded_port", guest: 443, host: 44300
@@ -27,7 +35,7 @@ class Entropy
     # Add Custom Ports From Configuration
     if settings.has_key?("ports")
       settings["ports"].each do |port|
-        config.vm.network "forwarded_port", guest: port["guest"], host: port["host"], protocol: port["protocol"] ||= "tcp"
+        config.vm.network "forwarded_port", guest: port["guest"] || port["to"], host: port["host"] || port["send"], protocol: port["protocol"] ||= "tcp"
       end
     end
 
@@ -124,6 +132,11 @@ class Entropy
             s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php-fpm.conf"
             s.args = [var["key"], var["value"]]
           end
+
+          config.vm.provision "shell" do |s|
+              s.inline = "echo \"\n#Set Entropy environment variable\nexport $1=$2\" >> /home/vagrant/.profile"
+              s.args = [var["key"], var["value"]]
+          end
         end
       end
 
@@ -139,6 +152,14 @@ class Entropy
     # Update Composer On Every Provision
     config.vm.provision "shell" do |s|
       s.inline = "/usr/local/bin/composer self-update"
+    end
+
+    # Configure Blackfire.io
+    if settings.has_key?("blackfire")
+      config.vm.provision "shell" do |s|
+        s.path = "./scripts/blackfire.sh"
+        s.args = [settings["blackfire"][0]["id"], settings["blackfire"][0]["token"]]
+      end
     end
   end
 end

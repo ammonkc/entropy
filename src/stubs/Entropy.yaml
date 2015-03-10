@@ -1,6 +1,7 @@
 ---
 box: "ammonkc/entropy"
 box_version: "~>2.0"
+provider: virtualbox
 ostype: "RedHat_64"
 ip: "192.168.10.20"
 memory: 2048
