@@ -7,7 +7,7 @@ end
 
 confDir = $confDir ||= File.expand_path("~/.entropy")
 
-homesteadYamlPath = confDir + "/Entropy.yaml"
+entropyYamlPath = confDir + "/Entropy.yaml"
 afterScriptPath = confDir + "/after.sh"
 aliasesPath = confDir + "/aliases"
 
