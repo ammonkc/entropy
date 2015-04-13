@@ -2,6 +2,13 @@ class Entropy
   def Entropy.configure(config, settings)
     # Set The VM Provider
     ENV['VAGRANT_DEFAULT_PROVIDER'] = settings["provider"] ||= "virtualbox"
+
+    # Configure Local Variable To Access Scripts From Remote Location
+    scriptDir = File.dirname(__FILE__)
+
+    # Prevent TTY Errors
+    config.ssh.shell = "bash -c 'BASH_ENV=/etc/profile exec bash'"
+
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
     config.vm.hostname = "entropy"
@@ -59,8 +66,11 @@ class Entropy
     end
 
     # Register All Of The Configured Shared Folders
-    settings["folders"].each do |folder|
-      config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, :mount_options => ["dmode=777","fmode=666"]
+    if settings.include? 'folders'
+      settings["folders"].each do |folder|
+        mount_opts = folder["type"] == "nfs" ? ['actimeo=1','dmode=777','fmode=666'] : ['dmode=777','fmode=666']
+        config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, mount_options: mount_opts
+      end
     end
 
     # Install All The Configured vhost Sites
@@ -68,19 +78,19 @@ class Entropy
       config.vm.provision "shell" do |s|
         if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
           if (site.has_key?("hhvm") && site["hhvm"])
-            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 \"$2\" $3"
-            s.args = [site["map"], site["to"], site["port"] ||= 80]
+            s.path = scriptDir + "/serve-hhvm.sh"
+            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
           else
-            s.inline = "bash /vagrant/scripts/serve.sh $1 \"$2\" $3"
-            s.args = [site["map"], site["to"], site["port"] ||= 80]
+            s.path = scriptDir + "/serve.sh"
+            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
           end
         else
           if (site.has_key?("hhvm") && site["hhvm"])
-            s.inline = "bash /vagrant/scripts/serve-hhvm.sh $1 \"$2\" $3"
-            s.args = [site["map"], site["to"], site["port"] ||= 80]
+            s.path = scriptDir + "/serve-hhvm.sh"
+            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
           else
-            s.inline = "bash /vagrant/scripts/serve-httpd.sh $1 \"$2\" $3"
-            s.args = [site["map"], site["to"], site["port"] ||= 80]
+            s.path = scriptDir + "/serve-httpd.sh"
+            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
           end
         end
       end
@@ -103,7 +113,7 @@ class Entropy
     # Configure All Of The Configured Databases
     settings["databases"].each do |database|
         config.vm.provision "shell" do |s|
-            s.path = "./scripts/create-mysql.sh"
+            s.path = scriptDir + "/create-mysql.sh"
             if (database.has_key?("sql") && database["sql"])
               s.args = [database["db"], database["sql"]]
             else
@@ -112,7 +122,7 @@ class Entropy
         end
 
         config.vm.provision "shell" do |s|
-            s.path = "./scripts/create-postgres.sh"
+            s.path = scriptDir + "/create-postgres.sh"
             if (database.has_key?("psql") && database["psql"])
               s.args = [database["db"], database["psql"]]
             else
@@ -157,8 +167,13 @@ class Entropy
     # Configure Blackfire.io
     if settings.has_key?("blackfire")
       config.vm.provision "shell" do |s|
-        s.path = "./scripts/blackfire.sh"
-        s.args = [settings["blackfire"][0]["id"], settings["blackfire"][0]["token"]]
+        s.path = scriptDir + "/blackfire.sh"
+        s.args = [
+          settings["blackfire"][0]["id"],
+          settings["blackfire"][0]["token"],
+          settings["blackfire"][0]["client-id"],
+          settings["blackfire"][0]["client-token"]
+        ]
       end
     end
   end
