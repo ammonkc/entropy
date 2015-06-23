@@ -25,14 +25,14 @@ function entropy_path()
 	}
 }
 
-$app = new Symfony\Component\Console\Application('Entropy', '2.1.13');
+$app = new Symfony\Component\Console\Application('Entropy', '2.1.14');
 
 $app->add(new Ammonkc\Entropy\BoxesCommand);
 $app->add(new Ammonkc\Entropy\DestroyCommand);
 $app->add(new Ammonkc\Entropy\EditCommand);
 $app->add(new Ammonkc\Entropy\HaltCommand);
 $app->add(new Ammonkc\Entropy\InitCommand);
-$app->add(new Laravel\Entropy\MakeCommand);
+$app->add(new Ammonkc\Entropy\MakeCommand);
 $app->add(new Ammonkc\Entropy\ProvisionCommand);
 $app->add(new Ammonkc\Entropy\ResumeCommand);
 $app->add(new Ammonkc\Entropy\RunCommand);
