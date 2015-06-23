@@ -11,7 +11,7 @@ class Entropy
 
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
-    config.vm.hostname = "entropy"
+    config.vm.hostname = settings["hostname"] ||= "entropy"
     config.vm.box_version = settings["box_version"] ||= "~>2.0"
 
     # Configure A Private Network IP
@@ -19,7 +19,7 @@ class Entropy
 
     # Configure A Few VirtualBox Settings
     config.vm.provider "virtualbox" do |vb|
-      vb.name = 'entropy'
+      vb.name = settings["name"] ||= 'entropy'
       vb.customize ["modifyvm", :id, "--memory", settings["memory"] ||= "2048"]
       vb.customize ["modifyvm", :id, "--cpus", settings["cpus"] ||= "1"]
       vb.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
@@ -135,24 +135,26 @@ class Entropy
     end
 
     # Configure All Of The Configured Databases
-    settings["databases"].each do |database|
-        config.vm.provision "shell" do |s|
-            s.path = scriptDir + "/create-mysql.sh"
-            if (database.has_key?("sql") && database["sql"])
-              s.args = [database["db"], database["sql"]]
-            else
-              s.args = database["db"]
-            end
-        end
+    if settings.has_key?("databases")
+      settings["databases"].each do |database|
+          config.vm.provision "shell" do |s|
+              s.path = scriptDir + "/create-mysql.sh"
+              if (database.has_key?("sql") && database["sql"])
+                s.args = [database["db"], database["sql"]]
+              else
+                s.args = database["db"]
+              end
+          end
 
-        config.vm.provision "shell" do |s|
-            s.path = scriptDir + "/create-postgres.sh"
-            if (database.has_key?("psql") && database["psql"])
-              s.args = [database["db"], database["psql"]]
-            else
-              s.args = database["db"]
-            end
-        end
+          config.vm.provision "shell" do |s|
+              s.path = scriptDir + "/create-postgres.sh"
+              if (database.has_key?("psql") && database["psql"])
+                s.args = [database["db"], database["psql"]]
+              else
+                s.args = database["db"]
+              end
+          end
+      end
     end
 
     # Configure All Of The Server Environment Variables
