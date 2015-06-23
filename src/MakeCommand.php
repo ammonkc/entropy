@@ -1,5 +1,5 @@
 <?php
-namespace Laravel\Entropy;
+namespace Ammonkc\Entropy;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputOption;
@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MakeCommand extends Command
 {
     /**
-     * The base path of the Laravel installation.
+     * The base path of the Ammonkc installation.
      *
      * @var string
      */
