@@ -8,6 +8,7 @@ end
 confDir = $confDir ||= File.expand_path("~/.entropy")
 
 entropyYamlPath = confDir + "/Entropy.yaml"
+entropyJsonPath = confDir + "/Entropy.json"
 afterScriptPath = confDir + "/after.sh"
 aliasesPath = confDir + "/aliases"
 
@@ -18,7 +19,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 		config.vm.provision "file", source: aliasesPath, destination: "~/.bash_aliases"
 	end
 
-	Entropy.configure(config, YAML::load(File.read(entropyYamlPath)))
+    if File.exists? entropyYamlPath then
+    	Entropy.configure(config, YAML::load(File.read(entropyYamlPath)))
+    elsif File.exists? entropyJsonPath then
+        Entropy.configure(config, JSON.parse(File.read(entropyJsonPath)))
+    end
 
 	if File.exists? afterScriptPath then
 		config.vm.provision "shell", path: afterScriptPath

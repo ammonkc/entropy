@@ -82,7 +82,7 @@ class MakeCommand extends Command
     protected function configurePaths()
     {
         $yaml = str_replace(
-            "- map: /Library/WebServer/Documents", "- map: \"".$this->basePath."\"", $this->getEntropyFile()
+            "- map: /Library/WebServer/Documents", "- map: \"".str_replace('\\', '/', $this->basePath)."\"", $this->getEntropyFile()
         );
         $yaml = str_replace(
             "to: /var/www/html/Entropy", "to: \"/var/www/html/".$this->defaultName."\"", $yaml

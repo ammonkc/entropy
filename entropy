@@ -25,7 +25,7 @@ function entropy_path()
 	}
 }
 
-$app = new Symfony\Component\Console\Application('Entropy', '2.1.15');
+$app = new Symfony\Component\Console\Application('Entropy', '2.1.16');
 
 $app->add(new Ammonkc\Entropy\BoxesCommand);
 $app->add(new Ammonkc\Entropy\DestroyCommand);
@@ -39,6 +39,7 @@ $app->add(new Ammonkc\Entropy\RunCommand);
 $app->add(new Ammonkc\Entropy\UpCommand);
 $app->add(new Ammonkc\Entropy\UpdateCommand);
 $app->add(new Ammonkc\Entropy\SshCommand);
+$app->add(new Ammonkc\Entropy\SshConfigCommand);
 $app->add(new Ammonkc\Entropy\StatusCommand);
 $app->add(new Ammonkc\Entropy\SuspendCommand);
 
