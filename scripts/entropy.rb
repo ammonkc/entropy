@@ -11,11 +11,18 @@ class Entropy
 
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
-    config.vm.hostname = settings["hostname"] ||= "entropy"
     config.vm.box_version = settings["box_version"] ||= "~>2.0"
+    config.vm.hostname = settings["hostname"] ||= "entropy"
 
     # Configure A Private Network IP
     config.vm.network :private_network, ip: settings["ip"] ||= "192.168.10.20"
+
+    # Configure Additional Networks
+    if settings.has_key?("networks")
+      settings["networks"].each do |network|
+        config.vm.network network["type"], ip: network["ip"], bridge: network["bridge"] ||= nil
+      end
+    end
 
     # Configure A Few VirtualBox Settings
     config.vm.provider "virtualbox" do |vb|
@@ -33,8 +40,16 @@ class Entropy
         v.vmx["displayName"] = "entropy"
         v.vmx["memsize"] = settings["memory"] ||= 2048
         v.vmx["numvcpus"] = settings["cpus"] ||= 1
-        v.vmx["guestOS"] = settings["ostype"] ||= "RedHat_64"
+        v.vmx["guestOS"] = settings["ostype"] ||= "centos-64"
       end
+    end
+
+    # Configure A Few Parallels Settings
+    config.vm.provider "parallels" do |v|
+      v.update_guest_tools = true
+      v.optimize_power_consumption = false
+      v.memory = settings["memory"] ||= 2048
+      v.cpus = settings["cpus"] ||= 1
     end
 
     # Standardize Ports Naming Schema
@@ -92,31 +107,13 @@ class Entropy
     # Register All Of The Configured Shared Folders
     if settings.include? 'folders'
       settings["folders"].each do |folder|
-        mount_opts = folder["type"] == "nfs" ? ['actimeo=1','dmode=777','fmode=666'] : ['dmode=777','fmode=666']
-        config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, mount_options: mount_opts
-      end
-    end
+        mount_opts = []
 
-    # Install All The Configured vhost Sites
-    settings["sites"].each do |site|
-      config.vm.provision "shell" do |s|
-        if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
-          if (site.has_key?("hhvm") && site["hhvm"])
-            s.path = scriptDir + "/serve-hhvm.sh"
-            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
-          else
-            s.path = scriptDir + "/serve.sh"
-            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
-          end
-        else
-          if (site.has_key?("hhvm") && site["hhvm"])
-            s.path = scriptDir + "/serve-hhvm.sh"
-            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
-          else
-            s.path = scriptDir + "/serve-httpd.sh"
-            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
-          end
+        if (folder["type"] == "nfs")
+            mount_opts = folder["mount_opts"] ? folder["mount_opts"] : ['actimeo=1']
         end
+
+        config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, mount_options: mount_opts
       end
     end
 
@@ -126,38 +123,82 @@ class Entropy
       s.args = ["/etc/hosts.dnsmasq"]
     end
 
-    # Add sites to hosts.dnsmasq
+    # Install All The Configured vhost Sites
     settings["sites"].each do |site|
+      type = site["type"] ||= "laravel"
+      server = site["server"] ||= "httpd"
+
+      if (site.has_key?("hhvm") && site["hhvm"])
+        # type = "hhvm"
+      end
+
+      if (server == "apache")
+        server = "httpd"
+      end
+
+      if (type == "symfony")
+        type = "symfony2"
+      end
+
+      config.vm.provision "shell" do |s|
+        if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
+          s.path = scriptDir + "/serve-#{type}.sh"
+          s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
+        else
+          if (site.has_key?("hhvm") && site["hhvm"])
+            s.path = scriptDir + "/serve-hhvm.sh"
+            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443", server]
+          else
+            s.path = scriptDir + "/serve-#{type}.sh"
+            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443", server]
+          end
+        end
+      end
+
+      # Configure The Cron Schedule
+      if (site.has_key?("schedule") && site["schedule"])
+        config.vm.provision "shell" do |s|
+          s.path = scriptDir + "/cron-schedule.sh"
+          s.args = [site["map"].tr('^A-Za-z0-9', ''), site["to"]]
+        end
+      end
+
+      # Add sites to hosts.dnsmasq
       config.vm.provision "shell" do |s|
         s.inline = "bash /vagrant/scripts/dnsmasq.sh $1 $2"
         s.args = [settings["ip"], site["map"]]
       end
+
     end
 
     # Configure All Of The Configured Databases
     if settings.has_key?("databases")
-      settings["databases"].each do |database|
+      settings["databases"].each do |db|
           config.vm.provision "shell" do |s|
               s.path = scriptDir + "/create-mysql.sh"
-              if (database.has_key?("sql") && database["sql"])
-                s.args = [database["db"], database["sql"]]
+              if (db.has_key?("sql") && db["sql"])
+                s.args = [db["db"], db["sql"]]
               else
-                s.args = database["db"]
+                s.args = db["db"]
               end
           end
 
           config.vm.provision "shell" do |s|
               s.path = scriptDir + "/create-postgres.sh"
-              if (database.has_key?("psql") && database["psql"])
-                s.args = [database["db"], database["psql"]]
+              if (db.has_key?("psql") && db["psql"])
+                s.args = [db["db"], db["psql"]]
               else
-                s.args = database["db"]
+                s.args = db["db"]
               end
           end
       end
     end
 
     # Configure All Of The Server Environment Variables
+    config.vm.provision "shell" do |s|
+        s.path = scriptDir + "/clear-variables.sh"
+    end
+
     if settings.has_key?("variables")
       settings["variables"].each do |var|
         config.vm.provision "shell" do |s|
@@ -168,11 +209,11 @@ class Entropy
             s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php-fpm.conf"
             s.args = [var["key"], var["value"]]
           end
+        end
 
-          config.vm.provision "shell" do |s|
-              s.inline = "echo \"\n#Set Entropy environment variable\nexport $1=$2\" >> /home/vagrant/.profile"
-              s.args = [var["key"], var["value"]]
-          end
+        config.vm.provision "shell" do |s|
+            s.inline = "echo \"\n#Set Entropy environment variable\nexport $1=$2\" >> /home/vagrant/.profile"
+            s.args = [var["key"], var["value"]]
         end
       end
 
