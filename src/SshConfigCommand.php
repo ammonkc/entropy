@@ -1,8 +1,11 @@
-<?php namespace Ammonkc\Entropy;
-use Symfony\Component\Process\Process;
+<?php
+
+namespace Ammonkc\Entropy;
+
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+
 class SshConfigCommand extends Command
 {
     /**
@@ -12,9 +15,9 @@ class SshConfigCommand extends Command
      */
     protected function configure()
     {
-        $this->setName('ssh-config')
-                  ->setDescription('Outputs OpenSSH valid configuration to connect to Entropy');
+        $this->setName('ssh-config')->setDescription('Outputs OpenSSH valid configuration to connect to Entropy');
     }
+
     /**
      * Execute the command.
      *
@@ -25,8 +28,10 @@ class SshConfigCommand extends Command
     public function execute(InputInterface $input, OutputInterface $output)
     {
         chdir(__DIR__.'/../');
+
         passthru($this->setDotFileInEnvironment() . ' vagrant ssh-config');
     }
+
     /**
      * Set the dot file path in the environment.
      *
@@ -37,8 +42,10 @@ class SshConfigCommand extends Command
         if ($this->isWindows()) {
             return 'SET VAGRANT_DOTFILE_PATH='.$_ENV['VAGRANT_DOTFILE_PATH'].' &&';
         }
+
         return 'VAGRANT_DOTFILE_PATH="'.$_ENV['VAGRANT_DOTFILE_PATH'].'"';
     }
+
     /**
      * Determine if the machine is running the Windows operating system.
      *

@@ -1,12 +1,14 @@
-<?php namespace Ammonkc\Entropy;
+<?php
+
+namespace Ammonkc\Entropy;
 
 use Symfony\Component\Process\Process;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ProvisionCommand extends Command {
-
+class ProvisionCommand extends Command
+{
     /**
      * Configure the command options.
      *
@@ -14,8 +16,7 @@ class ProvisionCommand extends Command {
      */
     protected function configure()
     {
-        $this->setName('provision')
-            ->setDescription('Re-provisions the Entropy machine');
+        $this->setName('provision')->setDescription('Re-provisions the Entropy machine');
     }
 
     /**
@@ -29,10 +30,8 @@ class ProvisionCommand extends Command {
     {
         $process = new Process('vagrant provision', realpath(__DIR__.'/../'), array_merge($_SERVER, $_ENV), null, null);
 
-        $process->run(function($type, $line) use ($output)
-        {
+        $process->run(function ($type, $line) use ($output) {
             $output->write($line);
         });
     }
-
 }

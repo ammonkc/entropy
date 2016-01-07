@@ -4,13 +4,10 @@
 $_ENV['HOME'] = getenv('HOME');
 $_ENV['VAGRANT_DOTFILE_PATH'] = entropy_path().DIRECTORY_SEPARATOR.'.vagrant';
 
-if (file_exists(__DIR__.'/vendor/autoload.php'))
-{
-	require __DIR__.'/vendor/autoload.php';
-}
-else
-{
-	require __DIR__.'/../../autoload.php';
+if (file_exists(__DIR__.'/vendor/autoload.php')) {
+    require __DIR__.'/vendor/autoload.php';
+} else {
+    require __DIR__.'/../../autoload.php';
 }
 
 function entropy_path()
@@ -25,7 +22,7 @@ function entropy_path()
 	}
 }
 
-$app = new Symfony\Component\Console\Application('Entropy', '2.1.16');
+$app = new Symfony\Component\Console\Application('Entropy', '2.2.1');
 
 $app->add(new Ammonkc\Entropy\BoxesCommand);
 $app->add(new Ammonkc\Entropy\DestroyCommand);
@@ -36,11 +33,11 @@ $app->add(new Ammonkc\Entropy\MakeCommand);
 $app->add(new Ammonkc\Entropy\ProvisionCommand);
 $app->add(new Ammonkc\Entropy\ResumeCommand);
 $app->add(new Ammonkc\Entropy\RunCommand);
-$app->add(new Ammonkc\Entropy\UpCommand);
-$app->add(new Ammonkc\Entropy\UpdateCommand);
 $app->add(new Ammonkc\Entropy\SshCommand);
 $app->add(new Ammonkc\Entropy\SshConfigCommand);
 $app->add(new Ammonkc\Entropy\StatusCommand);
 $app->add(new Ammonkc\Entropy\SuspendCommand);
+$app->add(new Ammonkc\Entropy\UpCommand);
+$app->add(new Ammonkc\Entropy\UpdateCommand);
 
 $app->run();
