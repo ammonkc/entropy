@@ -1,11 +1,11 @@
 ---
-box: "ammonkc/entropy"
-box_version: "~>2.0"
-provider: virtualbox
-ostype: "RedHat_64"
 ip: "192.168.10.20"
 memory: 2048
 cpus: 1
+provider: virtualbox
+box: "ammonkc/entropy"
+version: "~>2.0"
+ostype: "RedHat_64"
 
 authorize: ~/.ssh/id_rsa.pub
 
