@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 
-case "$5" in
-
-"httpd")
+httpd() {
 mkdir /etc/httpd/ssl 2>/dev/null
 openssl genrsa -out "/etc/httpd/ssl/$1.key" 1024 2>/dev/null
 openssl req -new -key /etc/httpd/ssl/$1.key -out /etc/httpd/ssl/$1.csr -subj "/CN=$1/O=Vagrant/C=UK" 2>/dev/null
@@ -51,10 +49,9 @@ echo "$block" > "/etc/httpd/conf/vhosts/available/$1.conf"
 ln -fs "/etc/httpd/conf/vhosts/available/$1.conf" "/etc/httpd/conf/vhosts/enabled/$1.conf"
 service httpd restart
 service php-fpm restart
+}
 
-;;
-
-"nginx")
+nginx() {
 mkdir /etc/nginx/ssl 2>/dev/null
 openssl genrsa -out "/etc/nginx/ssl/$1.key" 1024 2>/dev/null
 openssl req -new -key /etc/nginx/ssl/$1.key -out /etc/nginx/ssl/$1.csr -subj "/CN=$1/O=Vagrant/C=UK" 2>/dev/null
@@ -111,8 +108,20 @@ echo "$block" > "/etc/nginx/sites-available/$1"
 ln -fs "/etc/nginx/sites-available/$1" "/etc/nginx/sites-enabled/$1"
 service nginx restart
 service php5-fpm restart
+}
 
-;;
+
+case "$5" in
+
+"httpd")
+    httpd
+
+    ;;
+
+"nginx")
+    nginx
+
+    ;;
 
 
 esac
