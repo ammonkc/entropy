@@ -11,7 +11,7 @@ class Entropy
 
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
-    config.vm.box_version = settings["box_version"] ||= "~>2.0"
+    config.vm.box_version = settings["version"] ||= "~>2.0"
     config.vm.hostname = settings["hostname"] ||= "entropy"
 
     # Configure A Private Network IP
