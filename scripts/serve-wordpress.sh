@@ -2,7 +2,7 @@
 
 case "$5" in
 
-"httpd")
+httpd)
 mkdir /etc/httpd/ssl 2>/dev/null
 openssl genrsa -out "/etc/httpd/ssl/$1.key" 1024 2>/dev/null
 openssl req -new -key /etc/httpd/ssl/$1.key -out /etc/httpd/ssl/$1.csr -subj "/CN=$1/O=Vagrant/C=UK" 2>/dev/null
@@ -54,7 +54,7 @@ service php-fpm restart
 
 ;;
 
-"nginx")
+nginx)
 mkdir /etc/nginx/ssl 2>/dev/null
 openssl genrsa -out "/etc/nginx/ssl/$1.key" 1024 2>/dev/null
 openssl req -new -key /etc/nginx/ssl/$1.key -out /etc/nginx/ssl/$1.csr -subj "/CN=$1/O=Vagrant/C=UK" 2>/dev/null
