@@ -8,6 +8,27 @@ openssl genrsa -out "/etc/httpd/ssl/$1.key" 1024 2>/dev/null
 openssl req -new -key /etc/httpd/ssl/$1.key -out /etc/httpd/ssl/$1.csr -subj "/CN=$1/O=Vagrant/C=UK" 2>/dev/null
 openssl x509 -req -days 365 -in /etc/httpd/ssl/$1.csr -signkey /etc/httpd/ssl/$1.key -out /etc/httpd/ssl/$1.crt 2>/dev/null
 
+HHVM=""
+if [[ $6 =~ hhvm ]]; then
+HHVM="
+<IfModule mod_fastcgi.c>
+    <FilesMatch \.php$>
+        SetHandler hhvm-php-extension
+    </FilesMatch>
+
+    <FilesMatch \.hh$>
+        SetHandler hhvm-hack-extension
+    </FilesMatch>
+
+    Alias /hhvm /hhvm
+    Action hhvm-php-extension /hhvm virtual
+    Action hhvm-hack-extension /hhvm virtual
+
+    FastCgiExternalServer /hhvm -host 127.0.0.1:9001 -pass-header Authorization -idle-timeout 300
+</IfModule>
+"
+fi
+
 block="
 <VirtualHost *:${3:-80}>
     ServerAdmin acasey@panda-group.com
@@ -17,6 +38,8 @@ block="
     ErrorLog logs/$1-error.log
     CustomLog logs/$1-access.log common
     LogLevel warn
+
+    $HHVM
 
     <Directory $2>
       Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews

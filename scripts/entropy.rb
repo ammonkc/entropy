@@ -127,9 +127,10 @@ class Entropy
     settings["sites"].each do |site|
       type = site["type"] ||= "laravel"
       server = site["server"] ||= "httpd"
+      php = "php"
 
       if (site.has_key?("hhvm") && site["hhvm"])
-        # type = "hhvm"
+        php = "hhvm"
       end
 
       if (server == "apache")
@@ -145,13 +146,8 @@ class Entropy
           s.path = scriptDir + "/serve-#{type}.sh"
           s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
         else
-          if (site.has_key?("hhvm") && site["hhvm"])
-            s.path = scriptDir + "/serve-hhvm.sh"
-            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443", server]
-          else
-            s.path = scriptDir + "/serve-#{type}.sh"
-            s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443", server]
-          end
+          s.path = scriptDir + "/serve-#{type}.sh"
+          s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443", server, php]
         end
       end
 
