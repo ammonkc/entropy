@@ -22,7 +22,7 @@ function entropy_path()
 	}
 }
 
-$app = new Symfony\Component\Console\Application('Entropy', '2.2.1');
+$app = new Symfony\Component\Console\Application('Entropy', '2.3.0');
 
 $app->add(new Ammonkc\Entropy\BoxesCommand);
 $app->add(new Ammonkc\Entropy\DestroyCommand);
