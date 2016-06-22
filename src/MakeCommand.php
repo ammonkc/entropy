@@ -10,23 +10,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MakeCommand extends Command
 {
     /**
-     * The base path of the Ammonkc installation.
+     * The base path of the Laravel installation.
      *
      * @var string
      */
     protected $basePath;
+
     /**
      * The name of the project folder.
      *
      * @var string
      */
     protected $projectName;
+
     /**
      * Sluggified Project Name.
      *
      * @var string
      */
     protected $defaultName;
+
     /**
      * Configure the command options.
      *
@@ -37,13 +40,16 @@ class MakeCommand extends Command
         $this->basePath = getcwd();
         $this->projectName = basename(getcwd());
         $this->defaultName = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $this->projectName)));
+
         $this
             ->setName('make')
             ->setDescription('Install Entropy into the current project')
             ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'The name the virtual machine.', $this->defaultName)
             ->addOption('hostname', null, InputOption::VALUE_OPTIONAL, 'The hostname the virtual machine.', $this->defaultName)
+            ->addOption('hostname', null, InputOption::VALUE_OPTIONAL, 'The hostname of the virtual machine.', $this->defaultName)
             ->addOption('after', null, InputOption::VALUE_NONE, 'Determines if the after.sh file is created.')
-            ->addOption('aliases', null, InputOption::VALUE_NONE, 'Determines if the aliases file is created.');
+            ->addOption('aliases', null, InputOption::VALUE_NONE, 'Determines if the aliases file is created.')
+            ->addOption('example', null, InputOption::VALUE_NONE, 'Determines if a Entropy.yaml.example file is created.');
     }
     /**
      * Execute the command.
@@ -58,7 +64,7 @@ class MakeCommand extends Command
             copy(__DIR__.'/stubs/LocalizedVagrantfile', $this->basePath.'/Vagrantfile');
         }
 
-        if (!file_exists($this->basePath.'/Entropy.yaml')) {
+        if (!file_exists($this->basePath.'/Entropy.yaml') && ! file_exists($this->basePath.'/Entropy.yaml.example')) {
             copy(__DIR__ . '/stubs/Entropy.yaml', $this->basePath . '/Entropy.yaml');
 
             if ($input->getOption('name')) {
@@ -68,6 +74,11 @@ class MakeCommand extends Command
             if ($input->getOption('hostname')) {
                 $this->updateHostName($input->getOption('hostname'));
             }
+            if ($input->getOption('ip')) {
+                $this->updateIpAddress($input->getOption('ip'));
+            }
+        } elseif (! file_exists($this->basePath.'/Entropy.yaml')) {
+            copy($this->basePath.'/Entropy.yaml.example', $this->basePath.'/Entropy.yaml');
         }
 
         if ($input->getOption('after')) {
@@ -78,6 +89,12 @@ class MakeCommand extends Command
         if ($input->getOption('aliases')) {
             if (!file_exists($this->basePath.'/aliases')) {
                 copy(__DIR__ . '/stubs/aliases', $this->basePath . '/aliases');
+            }
+        }
+
+        if ($input->getOption('example')) {
+            if (! file_exists($this->basePath.'/Entropy.yaml.example')) {
+                copy($this->basePath.'/Entropy.yaml', $this->basePath.'/Entropy.yaml.example');
             }
         }
 
@@ -132,6 +149,19 @@ class MakeCommand extends Command
     {
         file_put_contents($this->basePath.'/Entropy.yaml', str_replace(
             "cpus: 1", "cpus: 1".PHP_EOL."hostname: ".$hostname, $this->getEntropyFile()
+        ));
+    }
+
+    /**
+     * Set the virtual machine's IP address setting in the Entropy.yaml file.
+     *
+     * @param  string  $ip
+     * @return void
+     */
+    protected function updateIpAddress($ip)
+    {
+        file_put_contents($this->basePath.'/Entropy.yaml', str_replace(
+            'ip: "192.168.10.20"', 'ip: "'.$ip.'"', $this->getEntropyFile()
         ));
     }
 

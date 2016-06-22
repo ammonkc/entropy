@@ -37,7 +37,7 @@ class Entropy
     # Configure A Few VMware Settings
     ["vmware_fusion", "vmware_workstation"].each do |vmware|
       config.vm.provider vmware do |v|
-        v.vmx["displayName"] = "entropy"
+        v.vmx["displayName"] = settings["name"] ||= "entropy"
         v.vmx["memsize"] = settings["memory"] ||= 2048
         v.vmx["numvcpus"] = settings["cpus"] ||= 1
         v.vmx["guestOS"] = settings["ostype"] ||= "centos-64"
@@ -72,9 +72,11 @@ class Entropy
     }
 
     # Use Default Port Forwarding Unless Overridden
-    default_ports.each do |guest, host|
-      unless settings["ports"].any? { |mapping| mapping["guest"] == guest }
-        config.vm.network "forwarded_port", guest: guest, host: host, auto_correct: true
+    unless settings.has_key?("default_ports") && settings["default_ports"] == false
+      default_ports.each do |guest, host|
+        unless settings["ports"].any? { |mapping| mapping["guest"] == guest }
+          config.vm.network "forwarded_port", guest: guest, host: host, auto_correct: true
+        end
       end
     end
 
@@ -87,9 +89,11 @@ class Entropy
 
     # Configure The Public Key For SSH Access
     if settings.include? 'authorize'
-      config.vm.provision "shell" do |s|
-        s.inline = "echo $1 | grep -xq \"$1\" /home/vagrant/.ssh/authorized_keys || echo $1 | tee -a /home/vagrant/.ssh/authorized_keys"
-        s.args = [File.read(File.expand_path(settings["authorize"]))]
+      if File.exists? File.expand_path(settings["authorize"])
+        config.vm.provision "shell" do |s|
+          s.inline = "echo $1 | grep -xq \"$1\" /home/vagrant/.ssh/authorized_keys || echo $1 | tee -a /home/vagrant/.ssh/authorized_keys"
+          s.args = [File.read(File.expand_path(settings["authorize"]))]
+        end
       end
     end
 
@@ -104,6 +108,16 @@ class Entropy
       end
     end
 
+    # Copy User Files Over to VM
+    if settings.include? 'copy'
+      settings["copy"].each do |file|
+        config.vm.provision "file" do |f|
+          f.source = File.expand_path(file["from"])
+          f.destination = file["to"].chomp('/') + "/" + file["from"].split('/').last
+        end
+      end
+    end
+
     # Register All Of The Configured Shared Folders
     if settings.include? 'folders'
       settings["folders"].each do |folder|
@@ -111,9 +125,22 @@ class Entropy
 
         if (folder["type"] == "nfs")
             mount_opts = folder["mount_opts"] ? folder["mount_opts"] : ['actimeo=1']
+        elsif (folder["type"] == "smb")
+            mount_opts = folder["mount_options"] ? folder["mount_options"] : ['vers=3.02', 'mfsymlinks']
         end
 
-        config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, mount_options: mount_opts
+        # For b/w compatibility keep separate 'mount_opts', but merge with options
+        options = (folder["options"] || {}).merge({ mount_options: mount_opts })
+
+        # Double-splat (**) operator only works with symbol keys, so convert
+        options.keys.each{|k| options[k.to_sym] = options.delete(k) }
+
+        config.vm.synced_folder folder["map"], folder["to"], type: folder["type"] ||= nil, mount_options: mount_opts, **options
+
+        # Bindfs support to fix shared folder (NFS) permission issue on Mac
+        if Vagrant.has_plugin?("vagrant-bindfs")
+          config.bindfs.bind_folder folder["to"], folder["to"]
+        end
       end
     end
 
@@ -126,15 +153,13 @@ class Entropy
     # Install All The Configured vhost Sites
     settings["sites"].each do |site|
       type = site["type"] ||= "laravel"
-      server = site["server"] ||= "httpd"
-      php = "php"
 
       if (site.has_key?("hhvm") && site["hhvm"])
-        php = "hhvm"
+        type = "hhvm"
       end
 
-      if (server == "apache")
-        server = "httpd"
+      if (type == "apache")
+        type = "httpd"
       end
 
       if (type == "symfony")
@@ -143,19 +168,27 @@ class Entropy
 
       config.vm.provision "shell" do |s|
         if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
-          s.path = scriptDir + "/serve-#{type}.sh"
-          s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
+          s.name = "Creating Homestead Site: " + site["map"]
+          s.path = scriptDir + "/serve-nginx.sh"
         else
+          s.name = "Creating #{type} Site: " + site["map"]
           s.path = scriptDir + "/serve-#{type}.sh"
-          s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443", server, php]
         end
+        s.args = [site["map"], site["to"], site["port"] ||= "80", site["ssl"] ||= "443"]
       end
 
       # Configure The Cron Schedule
-      if (site.has_key?("schedule") && site["schedule"])
+      if (site.has_key?("schedule"))
         config.vm.provision "shell" do |s|
-          s.path = scriptDir + "/cron-schedule.sh"
-          s.args = [site["map"].tr('^A-Za-z0-9', ''), site["to"]]
+          s.name = "Creating Schedule"
+
+          if (site["schedule"])
+            s.path = scriptDir + "/cron-schedule.sh"
+            s.args = [site["map"].tr('^A-Za-z0-9', ''), site["to"]]
+          else
+            s.inline = "rm -f /etc/cron.d/$1"
+            s.args = [site["map"].tr('^A-Za-z0-9', '')]
+          end
         end
       end
 
@@ -167,31 +200,51 @@ class Entropy
 
     end
 
+    config.vm.provision "shell" do |s|
+      if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
+        s.name = "Restarting nginx"
+        s.inline = "sudo service nginx restart; sudo service php7.0-fpm restart"
+      else
+        s.name = "Restarting httpd"
+        s.inline = "sudo service httpd restart; sudo service php-fpm restart"
+      end
+    end
+
+    # Install MariaDB If Necessary
+    if settings.has_key?("mariadb") && settings["mariadb"]
+      config.vm.provision "shell" do |s|
+        s.path = scriptDir + "/install-maria.sh"
+      end
+    end
+
     # Configure All Of The Configured Databases
     if settings.has_key?("databases")
       settings["databases"].each do |db|
           config.vm.provision "shell" do |s|
-              s.path = scriptDir + "/create-mysql.sh"
-              if (db.has_key?("sql") && db["sql"])
-                s.args = [db["db"], db["sql"]]
-              else
-                s.args = db["db"]
-              end
+            s.name = "Creating MySQL Database"
+            s.path = scriptDir + "/create-mysql.sh"
+            if (db.has_key?("sql") && db["sql"])
+              s.args = [db["db"], db["sql"]]
+            else
+              s.args = db["db"]
+            end
           end
 
           config.vm.provision "shell" do |s|
-              s.path = scriptDir + "/create-postgres.sh"
-              if (db.has_key?("psql") && db["psql"])
-                s.args = [db["db"], db["psql"]]
-              else
-                s.args = db["db"]
-              end
+            s.name = "Creating Postgres Database"
+            s.path = scriptDir + "/create-postgres.sh"
+            if (db.has_key?("psql") && db["psql"])
+              s.args = [db["db"], db["psql"]]
+            else
+              s.args = db["db"]
+            end
           end
       end
     end
 
     # Configure All Of The Server Environment Variables
     config.vm.provision "shell" do |s|
+        s.name = "Clear Variables"
         s.path = scriptDir + "/clear-variables.sh"
     end
 
@@ -199,7 +252,7 @@ class Entropy
       settings["variables"].each do |var|
         config.vm.provision "shell" do |s|
           if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
-            s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php5/fpm/php-fpm.conf"
+            s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php/7.0/fpm/php-fpm.conf"
             s.args = [var["key"], var["value"]]
           else
             s.inline = "echo \"\nenv[$1] = '$2'\" >> /etc/php-fpm.conf"
