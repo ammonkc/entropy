@@ -155,10 +155,6 @@ class Entropy
     settings["sites"].each do |site|
       type = site["type"] ||= "laravel"
 
-      if (site.has_key?("hhvm") && site["hhvm"])
-        type = "hhvm"
-      end
-
       if (type == "apache")
         type = "httpd"
       end
@@ -199,15 +195,20 @@ class Entropy
         s.args = [settings["ip"], site["map"]]
       end
 
+      # restart dnsmasq service
+      config.vm.provision "shell" do |s|
+        s.inline = "systemctl restart dnsmasq.service"
+      end
+
     end
 
     config.vm.provision "shell" do |s|
       if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
         s.name = "Restarting nginx"
-        s.inline = "sudo service nginx restart; sudo service php7.0-fpm restart"
+        s.inline = "sudo systemctl restart nginx.service; sudo systemctl restart php7.0-fpm.service"
       else
         s.name = "Restarting httpd"
-        s.inline = "sudo service httpd restart; sudo service php-fpm restart"
+        s.inline = "sudo systemctl restart httpd.service; sudo systemctl restart php-fpm.service"
       end
     end
 
@@ -269,9 +270,9 @@ class Entropy
 
       config.vm.provision "shell" do |s|
         if (settings.has_key?("box") && settings["box"] == "laravel/homestead")
-          s.inline = "service php5-fpm restart"
+          s.inline = "sudo systemctl restart php7.0-fpm.service"
         else
-          s.inline = "service php-fpm restart"
+          s.inline = "systemctl restart php-fpm.service"
         end
       end
     end
