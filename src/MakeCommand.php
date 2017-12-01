@@ -28,7 +28,7 @@ class MakeCommand extends Command
      *
      * @var string
      */
-    protected $defaultName;
+    protected $name;
 
     /**
      * Configure the command options.
@@ -39,14 +39,14 @@ class MakeCommand extends Command
     {
         $this->basePath = getcwd();
         $this->projectName = basename(getcwd());
-        $this->defaultName = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $this->projectName)));
+        $this->name = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $this->projectName)));
 
         $this
             ->setName('make')
             ->setDescription('Install Entropy into the current project')
-            ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'The name the virtual machine.', $this->defaultName)
-            ->addOption('hostname', null, InputOption::VALUE_OPTIONAL, 'The hostname the virtual machine.', $this->defaultName)
-            ->addOption('hostname', null, InputOption::VALUE_OPTIONAL, 'The hostname of the virtual machine.', $this->defaultName)
+            ->addOption('name', null, InputOption::VALUE_OPTIONAL, 'The name the virtual machine.', $this->name)
+            ->addOption('hostname', null, InputOption::VALUE_OPTIONAL, 'The hostname the virtual machine.', $this->name)
+            ->addOption('hostname', null, InputOption::VALUE_OPTIONAL, 'The hostname of the virtual machine.', $this->name)
             ->addOption('after', null, InputOption::VALUE_NONE, 'Determines if the after.sh file is created.')
             ->addOption('aliases', null, InputOption::VALUE_NONE, 'Determines if the aliases file is created.')
             ->addOption('example', null, InputOption::VALUE_NONE, 'Determines if a Entropy.yaml.example file is created.');
@@ -113,12 +113,12 @@ class MakeCommand extends Command
         );
 
         $yaml = str_replace(
-            'to: /var/www/html/Entropy', 'to: "/var/www/html/'.$this->defaultName.'"', $yaml
+            'to: /var/www/html/Entropy', 'to: "/var/www/html/'.$this->name.'"', $yaml
         );
 
         // Fix path to the public folder (sites: to:)
         $yaml = str_replace(
-            $this->defaultName.'"/Entropy/public', $this->defaultName.'/public"', $yaml
+            $this->name.'"/Entropy/public', $this->name.'/public"', $yaml
         );
 
         file_put_contents($this->basePath.'/Entropy.yaml', $yaml);
