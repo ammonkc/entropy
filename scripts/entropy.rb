@@ -195,6 +195,11 @@ class Entropy
         s.args = [settings["ip"], site["map"]]
       end
 
+      # restart dnsmasq service
+      config.vm.provision "shell" do |s|
+        s.inline = "systemctl restart dnsmasq.service"
+      end
+
     end
 
     config.vm.provision "shell" do |s|
