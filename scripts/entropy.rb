@@ -11,7 +11,7 @@ class Entropy
 
     # Configure The Box
     config.vm.box = settings["box"] ||= "ammonkc/entropy"
-    config.vm.box_version = settings["version"] ||= "~>2.0"
+    config.vm.box_version = settings["version"] ||= "~>3.0"
     config.vm.hostname = settings["hostname"] ||= "entropy"
 
     # Configure A Private Network IP
@@ -68,7 +68,8 @@ class Entropy
       80   => 8000,
       443  => 44300,
       3306 => 33060,
-      5432 => 54320
+      5432 => 54320,
+      8025 => 8025,
     }
 
     # Use Default Port Forwarding Unless Overridden
