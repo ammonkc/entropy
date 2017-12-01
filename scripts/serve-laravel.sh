@@ -24,6 +24,10 @@ block="
     CustomLog logs/$1-access.log common
     LogLevel warn
 
+    <IfModule mpm_event_module>
+      ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000$2/\$1
+    </IfModule>
+
     <Directory $2>
       Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
       AllowOverride All
@@ -43,6 +47,10 @@ block="
     ErrorLog logs/$1-ssl-error.log
     CustomLog logs/$1-ssl-access.log common
     LogLevel warn
+
+    <IfModule mpm_event_module>
+      ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000$2/\$1
+    </IfModule>
 
     <Directory $2>
       Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
