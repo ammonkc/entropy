@@ -195,11 +195,6 @@ class Entropy
         s.args = [settings["ip"], site["map"]]
       end
 
-      # restart dnsmasq service
-      config.vm.provision "shell" do |s|
-        s.inline = "systemctl restart dnsmasq.service"
-      end
-
     end
 
     config.vm.provision "shell" do |s|
@@ -210,6 +205,11 @@ class Entropy
         s.name = "Restarting httpd"
         s.inline = "sudo systemctl restart httpd.service; sudo systemctl restart php-fpm.service"
       end
+    end
+
+    # restart dnsmasq service
+    config.vm.provision "shell" do |s|
+      s.inline = "systemctl restart dnsmasq.service"
     end
 
     # Install MariaDB If Necessary
@@ -282,17 +282,5 @@ class Entropy
       s.inline = "/usr/local/bin/composer self-update"
     end
 
-    # Configure Blackfire.io
-    if settings.has_key?("blackfire")
-      config.vm.provision "shell" do |s|
-        s.path = scriptDir + "/blackfire.sh"
-        s.args = [
-          settings["blackfire"][0]["id"],
-          settings["blackfire"][0]["token"],
-          settings["blackfire"][0]["client-id"],
-          settings["blackfire"][0]["client-token"]
-        ]
-      end
-    end
   end
 end
