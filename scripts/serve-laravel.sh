@@ -18,10 +18,6 @@ block="
     DocumentRoot "$2"
     $paramsTXT
 
-    <IfModule mpm_event_module>
-      ProxyPassMatch ^/(.*\.php(/.*)?)$ fcgi://127.0.0.1:9000$2/\$1
-    </IfModule>
-
     <Directory $2>
       Options -Indexes +FollowSymLinks +MultiViews
       AllowOverride All
