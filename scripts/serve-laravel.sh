@@ -29,10 +29,9 @@ block="
     </IfModule>
 
     <Directory $2>
-      Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+      Options -Indexes +FollowSymLinks +MultiViews
       AllowOverride All
-      Order allow,deny
-      Allow from all
+      Require all granted
    </Directory>
 </VirtualHost>
 <VirtualHost *:${4:-443}>
@@ -53,10 +52,9 @@ block="
     </IfModule>
 
     <Directory $2>
-      Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
+      Options -Indexes +FollowSymLinks +MultiViews
       AllowOverride All
-      Order allow,deny
-      Allow from all
+      Require all granted
    </Directory>
 </VirtualHost>
 "

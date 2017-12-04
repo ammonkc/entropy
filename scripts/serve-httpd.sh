@@ -29,11 +29,10 @@ block="
     </IfModule>
 
     <Directory $2>
-      Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
-      AllowOverride All
-      Order allow,deny
-      Allow from all
-   </Directory>
+        Options -Indexes +FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+     </Directory>
 </VirtualHost>
 <VirtualHost *:${4:-443}>
     ServerAdmin acasey@panda-group.com
@@ -53,11 +52,10 @@ block="
     </IfModule>
 
     <Directory $2>
-      Options -Indexes -Includes -FollowSymLinks SymLinksifOwnerMatch ExecCGI MultiViews
-      AllowOverride All
-      Order allow,deny
-      Allow from all
-   </Directory>
+        Options -Indexes +FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+     </Directory>
 </VirtualHost>
 "
 
