@@ -2,7 +2,7 @@
 
 mkdir /etc/httpd/ssl 2>/dev/null
 
-PATH_SSL="/etc/nginx/ssl"
+PATH_SSL="/etc/httpd/ssl"
 PATH_CNF="${PATH_SSL}/${1}.cnf"
 PATH_KEY="${PATH_SSL}/${1}.key"
 PATH_CRT="${PATH_SSL}/${1}.crt"
