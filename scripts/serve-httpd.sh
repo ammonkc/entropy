@@ -43,7 +43,7 @@ echo "$block" > "/etc/httpd/sites-available/$1.conf"
 ln -fs "/etc/httpd/sites-available/$1.conf" "/etc/httpd/sites-enabled/$1.conf"
 
 blockssl="<IfModule mod_ssl.c>
-    <VirtualHost *:{$4:-443}>
+    <VirtualHost *:$4>
 
         ServerAdmin acasey@panda-group.com
         ServerName $1
