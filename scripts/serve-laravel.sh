@@ -30,8 +30,8 @@ block="
     # modules, e.g.
     #LogLevel info ssl:warn
 
-    ErrorLog log/$1-error.log
-    CustomLog log/$1-access.log combined
+    ErrorLog logs/$1-error.log
+    CustomLog logs/$1-access.log combined
     LogLevel warn
 
 </VirtualHost>
@@ -63,8 +63,8 @@ blockssl="<IfModule mod_ssl.c>
         # modules, e.g.
         #LogLevel info ssl:warn
 
-        ErrorLog log/$1-error.log
-        CustomLog log/$1-access.log combined
+        ErrorLog logs/$1-error.log
+        CustomLog logs/$1-access.log combined
 
         # For most configuration files from conf-available/, which are
         # enabled or disabled at a global level, it is possible to
