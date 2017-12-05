@@ -281,7 +281,7 @@ class Entropy
 
     config.vm.provision "shell" do |s|
         s.name = "Restarting Cron"
-        s.inline = "sudo systemctl restart cron.service"
+        s.inline = "sudo systemctl restart crond.service"
     end
 
     # restart dnsmasq service
