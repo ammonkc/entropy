@@ -11,7 +11,7 @@ if [ -n "$6" ]; then
 fi
 
 block="
-<VirtualHost *:${3:-80}>
+<VirtualHost *:$3>
     ServerAdmin acasey@panda-group.com
     ServerName $1
     ServerAlias www.$1
@@ -63,8 +63,8 @@ blockssl="<IfModule mod_ssl.c>
         # modules, e.g.
         #LogLevel info ssl:warn
 
-        ErrorLog logs/$1-error.log
-        CustomLog logs/$1-access.log combined
+        ErrorLog logs/$1-ssl-error.log
+        CustomLog logs/$1-ssl-access.log combined
 
         # For most configuration files from conf-available/, which are
         # enabled or disabled at a global level, it is possible to
