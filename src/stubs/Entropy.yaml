@@ -13,7 +13,7 @@ keys:
     - ~/.ssh/id_rsa
 
 folders:
-    - map: /Library/WebServer/Documents
+    - map: ~/src/code
       to: /var/www/html/Entropy
 
 sites:
