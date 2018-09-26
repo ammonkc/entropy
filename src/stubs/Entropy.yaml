@@ -17,7 +17,7 @@ folders:
       to: /var/www/html/Entropy
 
 sites:
-    - map: entropy.dev
+    - map: entropy.test
       to: /var/www/html/Entropy/public
 
 databases:
